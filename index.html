@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EJ Jimenea — Commodity & Trading Operations</title>
+  <meta name="description" content="Post-execution operations analyst with 4+ years across NEISO, ERCOT, NYISO, and PJM power markets. Relocating to Boston, MA." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:          #000000;
+      --bg-2:        #0a0a0a;
+      --bg-3:        #111111;
+      --bg-4:        #161616;
+      --border:      rgba(255,255,255,0.06);
+      --border-mid:  rgba(255,255,255,0.11);
+      --border-hi:   rgba(255,255,255,0.18);
+      --text:        #f0f0f0;
+      --text-2:      #808080;
+      --text-3:      #3a3a3a;
+      --accent:      #e8f5e9;
+      --accent-2:    #a5d6a7;
+      --accent-dim:  rgba(165,214,167,0.08);
+      --accent-bdr:  rgba(165,214,167,0.18);
+      --amber:       #ffd54f;
+      --amber-dim:   rgba(255,213,79,0.08);
+      --amber-bdr:   rgba(255,213,79,0.18);
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap { max-width: 740px; margin: 0 auto; padding: 0 28px; }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .nav-inner {
+      max-width: 740px; margin: 0 auto; padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 54px;
+    }
+    .nav-logo { font-family: var(--mono); font-size: 12px; color: var(--accent-2); letter-spacing: 0.03em; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      font-size: 11px; color: var(--text-2); text-decoration: none;
+      letter-spacing: 0.07em; text-transform: uppercase; transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero { padding: 96px 0 80px; }
+    .hero-eyebrow {
+      font-family: var(--mono); font-size: 10px; color: var(--accent-2);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--accent-2);
+    }
+    h1 {
+      font-size: clamp(32px, 5.5vw, 50px); font-weight: 300;
+      line-height: 1.12; letter-spacing: -0.025em;
+      color: var(--text); margin-bottom: 24px;
+    }
+    h1 em { font-style: normal; color: var(--text-2); }
+    .hero-sub {
+      font-size: 15px; color: var(--text-2); max-width: 460px;
+      line-height: 1.8; margin-bottom: 40px;
+    }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 3px;
+      font-size: 12px; font-family: var(--sans); font-weight: 400;
+      cursor: pointer; text-decoration: none; transition: all 0.15s;
+      border: 1px solid transparent; letter-spacing: 0.02em;
+    }
+    .btn-solid {
+      background: var(--text); color: #000;
+      border-color: var(--text);
+    }
+    .btn-solid:hover { background: var(--accent-2); border-color: var(--accent-2); }
+    .btn-outline {
+      background: transparent; color: var(--text-2);
+      border-color: var(--border-mid);
+    }
+    .btn-outline:hover { color: var(--text); border-color: var(--border-hi); }
+
+    /* Divider */
+    hr { border: none; border-top: 1px solid var(--border); }
+
+    /* Section */
+    section { padding: 64px 0; }
+    .sec-label {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 36px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Stats */
+    .stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      border: 1px solid var(--border); border-radius: 4px;
+      overflow: hidden; gap: 0;
+    }
+    .stat {
+      background: var(--bg-2); padding: 32px 24px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-n {
+      font-family: var(--mono); font-size: 30px; font-weight: 300;
+      color: var(--accent-2); line-height: 1; margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+    .stat-l { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+
+    /* Experience */
+    .exp { margin-bottom: 48px; }
+    .exp:last-child { margin-bottom: 0; }
+    .exp-top {
+      display: flex; justify-content: space-between;
+      align-items: baseline; gap: 12px; margin-bottom: 3px; flex-wrap: wrap;
+    }
+    .exp-role { font-size: 14px; font-weight: 500; color: var(--text); }
+    .exp-when { font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+    .exp-co { font-size: 12px; color: var(--text-3); margin-bottom: 14px; }
+    .exp-ul { list-style: none; }
+    .exp-ul li {
+      font-size: 13px; color: var(--text-2); line-height: 1.7;
+      padding-left: 18px; position: relative; margin-bottom: 5px;
+    }
+    .exp-ul li::before {
+      content: '—'; position: absolute; left: 0;
+      color: var(--text-3); font-size: 10px; top: 4px;
+    }
+
+    /* Markets */
+    .mkt-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(155px,1fr));
+      gap: 6px;
+    }
+    .mkt {
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 16px 18px; background: var(--bg-2);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .mkt:hover { border-color: var(--border-mid); background: var(--bg-3); }
+    .mkt-iso {
+      font-family: var(--mono); font-size: 12px; font-weight: 500;
+      color: var(--accent-2); margin-bottom: 4px;
+    }
+    .mkt-sub { font-size: 11px; color: var(--text-3); }
+    .mkt-wide { grid-column: 1 / -1; }
+
+    /* Projects */
+    .proj {
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 24px; background: var(--bg-2); margin-bottom: 8px;
+      transition: border-color 0.15s;
+    }
+    .proj:hover { border-color: var(--border-mid); }
+    .proj-head {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px; margin-bottom: 10px;
+    }
+    .proj-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .badge {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.07em;
+      padding: 3px 9px; border-radius: 2px; white-space: nowrap; flex-shrink: 0;
+    }
+    .b-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-bdr); }
+    .b-muted { background: transparent; color: var(--text-3); border: 1px solid var(--border); }
+    .b-green { background: var(--accent-dim); color: var(--accent-2); border: 1px solid var(--accent-bdr); }
+    .proj-desc { font-size: 13px; color: var(--text-2); line-height: 1.7; margin-bottom: 14px; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      font-family: var(--mono); font-size: 9px; color: var(--text-3);
+      border: 1px solid var(--border); border-radius: 2px; padding: 3px 8px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Skills */
+    .skills { display: flex; flex-wrap: wrap; gap: 7px; }
+    .sk {
+      font-size: 12px; color: var(--text-2);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 6px 14px; background: var(--bg-2);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .sk:hover { border-color: var(--border-mid); color: var(--text); }
+    .sk.hi { border-color: var(--accent-bdr); color: var(--accent-2); background: var(--accent-dim); }
+
+    /* Contact */
+    .clist { display: flex; flex-direction: column; }
+    .ci {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 0; border-bottom: 1px solid var(--border);
+      text-decoration: none; transition: none;
+    }
+    .ci:first-child { border-top: 1px solid var(--border); }
+    .ci-ico { font-size: 13px; color: var(--text-3); width: 16px; text-align: center; }
+    .ci-lbl { font-family: var(--mono); font-size: 10px; color: var(--text-3); min-width: 64px; letter-spacing: 0.07em; }
+    .ci-val { font-size: 13px; color: var(--text-2); transition: color 0.15s; }
+    .ci:hover .ci-val { color: var(--accent-2); }
+    .ci-arr { margin-left: auto; font-size: 11px; color: var(--text-3); opacity: 0; transition: opacity 0.15s; }
+    .ci:hover .ci-arr { opacity: 1; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 28px 0; }
+    .foot {
+      max-width: 740px; margin: 0 auto; padding: 0 28px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .foot span { font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+
+    /* Animate */
+    .fade { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .fade.in { opacity: 1; transform: none; }
+
+    @media (max-width: 540px) {
+      .stats { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .nav-links { display: none; }
+      .hero { padding: 64px 0 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="nav-logo">EJ Jimenea</span>
+    <div class="nav-links">
+      <a href="#experience">Experience</a>
+      <a href="#markets">Markets</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero">
+    <p class="hero-eyebrow fade">Commodity &amp; Trading Operations</p>
+    <h1 class="fade">Post-execution ops<br><em>across US energy markets.</em></h1>
+    <p class="hero-sub fade">
+      Analyst at Tradition Energy. 4+ years managing end-to-end post-execution workflows across NEISO, ERCOT, NYISO, and PJM power markets and Henry Hub natural gas. Relocating to Boston, MA in H2 2026.
+    </p>
+    <div class="hero-actions fade">
+      <a href="resume.pdf" class="btn btn-solid" download>↓ Download resume</a>
+      <a href="https://www.linkedin.com/in/edwardjim/" class="btn btn-outline" target="_blank" rel="noopener">LinkedIn ↗</a>
+    </div>
+  </section>
+
+  <hr />
+
+  <section id="numbers">
+    <p class="sec-label fade">By the numbers</p>
+    <div class="stats fade">
+      <div class="stat">
+        <p class="stat-n">4+</p>
+        <p class="stat-l">Years in commodity operations</p>
+      </div>
+      <div class="stat">
+        <p class="stat-n">47K+</p>
+        <p class="stat-l">Client communications managed</p>
+      </div>
+      <div class="stat">
+        <p class="stat-n">15%</p>
+        <p class="stat-l">YoY turnaround improvement</p>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <section id="experience">
+    <p class="sec-label fade">Experience</p>
+
+    <div class="exp fade">
+      <div class="exp-top">
+        <span class="exp-role">Analyst</span>
+        <span class="exp-when">Feb 2026 – Present</span>
+      </div>
+      <p class="exp-co">Tradition Energy · Stamford, CT</p>
+      <ul class="exp-ul">
+        <li>End-to-end post-execution workflow management with full autonomy across a high-volume book of business</li>
+        <li>Counterparty and vendor escalation resolution across power and natural gas markets</li>
+        <li>Cross-functional coordination with directors and senior leadership on process improvements and exception resolution</li>
+        <li>Investigate and resolve operational breaks, processing discrepancies, and compliance issues across post-execution workflows</li>
+      </ul>
+    </div>
+
+    <div class="exp fade">
+      <div class="exp-top">
+        <span class="exp-role">Senior Associate</span>
+        <span class="exp-when">Feb 2024 – Feb 2026</span>
+      </div>
+      <p class="exp-co">Tradition Energy · Stamford, CT</p>
+      <ul class="exp-ul">
+        <li>Managed all post-sales transactions across NEISO, ERCOT, NYISO, and PJM while maintaining cross-functional collaboration</li>
+        <li>Streamlined vendor payment workflows and invoice processing, reducing turnaround time by 15% year-over-year</li>
+        <li>Led implementation of a new ETRM data management platform; hosted client meetings to ensure adoption and optimization</li>
+        <li>Served as primary resource for junior team members on case management, system navigation, and client communication</li>
+      </ul>
+    </div>
+
+    <div class="exp fade">
+      <div class="exp-top">
+        <span class="exp-role">Associate</span>
+        <span class="exp-when">Sep 2022 – Feb 2024</span>
+      </div>
+      <p class="exp-co">Tradition Energy · Stamford, CT</p>
+      <ul class="exp-ul">
+        <li>Supported daily post-execution operations while managing high case intake and transaction processing</li>
+        <li>Coordinated vendor invoice workflows and issue resolution to ensure timely and accurate payment processing</li>
+        <li>Facilitated cross-collaboration between sales and operations teams to support client onboarding and account servicing</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr />
+
+  <section id="markets">
+    <p class="sec-label fade">Markets covered</p>
+    <div class="mkt-grid fade">
+      <div class="mkt">
+        <p class="mkt-iso">NEISO</p>
+        <p class="mkt-sub">New England power</p>
+      </div>
+      <div class="mkt">
+        <p class="mkt-iso">ERCOT</p>
+        <p class="mkt-sub">Texas power</p>
+      </div>
+      <div class="mkt">
+        <p class="mkt-iso">NYISO</p>
+        <p class="mkt-sub">New York power</p>
+      </div>
+      <div class="mkt">
+        <p class="mkt-iso">PJM</p>
+        <p class="mkt-sub">Mid-Atlantic power</p>
+      </div>
+      <div class="mkt mkt-wide">
+        <p class="mkt-iso">Henry Hub</p>
+        <p class="mkt-sub">Natural gas — indexed transactions</p>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <section id="projects">
+    <p class="sec-label fade">Projects &amp; credentials</p>
+
+    <div class="proj fade">
+      <div class="proj-head">
+        <p class="proj-name">Bloomberg Market Concepts (BMC)</p>
+        <span class="badge b-amber">In progress</span>
+      </div>
+      <p class="proj-desc">Completing BMC certification via UConn alumni access. Covers financial instruments, economics, currencies, equities, and fixed income — formalizing market structure knowledge to complement operational experience.</p>
+      <div class="chips">
+        <span class="chip">Bloomberg</span>
+        <span class="chip">Market structure</span>
+        <span class="chip">Certification</span>
+      </div>
+    </div>
+
+    <div class="proj fade">
+      <div class="proj-head">
+        <p class="proj-name">Energy market operations dashboard</p>
+        <span class="badge b-muted">Coming soon</span>
+      </div>
+      <p class="proj-desc">Tableau dashboard built on public ISO settlement and load data — visualizing market trends, pricing anomalies, and operational patterns across NEISO and ERCOT.</p>
+      <div class="chips">
+        <span class="chip">Tableau</span>
+        <span class="chip">NEISO</span>
+        <span class="chip">ERCOT</span>
+        <span class="chip">Data viz</span>
+      </div>
+    </div>
+
+    <div class="proj fade">
+      <div class="proj-head">
+        <p class="proj-name">Exception tracking &amp; reporting system</p>
+        <span class="badge b-green">Delivered</span>
+      </div>
+      <p class="proj-desc">Designed and implemented an internal exception tracking and reporting process at Tradition Energy — improving visibility into operational bottlenecks and standardizing workflow across the team.</p>
+      <div class="chips">
+        <span class="chip">Process design</span>
+        <span class="chip">Excel</span>
+        <span class="chip">Workflow ops</span>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <section id="skills">
+    <p class="sec-label fade">Skills</p>
+    <div class="skills fade">
+      <span class="sk hi">Post-execution operations</span>
+      <span class="sk hi">ETRM systems</span>
+      <span class="sk hi">Exception resolution</span>
+      <span class="sk hi">Vendor management</span>
+      <span class="sk">Microsoft Dynamics CRM</span>
+      <span class="sk">Excel (PivotTables, XLOOKUP)</span>
+      <span class="sk">SharePoint</span>
+      <span class="sk">Asana</span>
+      <span class="sk">Cross-functional coordination</span>
+      <span class="sk">Process improvement</span>
+      <span class="sk">Financial reporting</span>
+      <span class="sk">Contract &amp; procurement</span>
+    </div>
+  </section>
+
+  <hr />
+
+  <section id="contact">
+    <p class="sec-label fade">Contact</p>
+    <div class="clist fade">
+      <a class="ci" href="mailto:ej.jim@outlook.com">
+        <span class="ci-ico">✉</span>
+        <span class="ci-lbl">Email</span>
+        <span class="ci-val">ej.jim@outlook.com</span>
+        <span class="ci-arr">↗</span>
+      </a>
+      <a class="ci" href="https://www.linkedin.com/in/edwardjim/" target="_blank" rel="noopener">
+        <span class="ci-ico">in</span>
+        <span class="ci-lbl">LinkedIn</span>
+        <span class="ci-val">linkedin.com/in/edwardjim</span>
+        <span class="ci-arr">↗</span>
+      </a>
+      <div class="ci" style="cursor:default;">
+        <span class="ci-ico">◎</span>
+        <span class="ci-lbl">Location</span>
+        <span class="ci-val">Boston, MA — relocating H2 2026</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="foot">
+    <span>Edward Joseph Jimenea</span>
+    <span>Commodity &amp; Trading Operations · Boston, MA</span>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in'), i * 55);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.07 });
+  document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
